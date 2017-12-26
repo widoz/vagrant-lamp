@@ -210,7 +210,7 @@ sudo service apache2 restart 1> /dev/null 2>&1
         " >> /usr/bin/switch_php.sh
 
         chmod 755 /usr/bin/switch_php.sh
-        ln -s /usr/bin/switch_php.s /usr/bin/switch_php
+        ln -s /usr/bin/switch_php.sh /usr/bin/switch_php
     fi
 done
 
