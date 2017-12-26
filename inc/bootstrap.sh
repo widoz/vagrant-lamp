@@ -71,7 +71,7 @@ apt-get update
 echo -e "\nInstall base packages ..."
 write_log "APTGET" "Install base packages ..."
 
-apt-get -y install vim curl build-essential python-software-properties rubygems ruby-dev 2>> $LOG_FILE
+apt-get -y install mc vim curl build-essential python-software-properties rubygems ruby-dev 2>> $LOG_FILE
 
 #
 # MySQL setup for development purposes ONLY
