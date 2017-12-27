@@ -89,7 +89,7 @@ debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multisel
 apt-get -y install mysql-server phpmyadmin 2>> $LOG_FILE
 
 mysql -uroot -p$DBPASSWD -e "CREATE DATABASE $DBNAME" 2>> $LOG_FILE
-mysql -uroot -p$DBPASSWD -e "grant all privileges on $DBNAME.* to '$DBUSER'@'localhost' identified by '$DBPASSWD'" 2>> $LOG_FILE
+mysql -uroot -p$DBPASSWD -e "grant all privileges on $DBNAME.* to '$DBUSER'@'%' identified by '$DBPASSWD'" 2>> $LOG_FILE
 
 sed -i "s/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
 
