@@ -167,8 +167,9 @@ xdebug.max_nesting_level=100
         ' >> /etc/php/${PHP_VERSION}/apache2/php.ini
         fi
     fi
+done
 
-    if [ ! -f /usr/bin/switch_php.sh ]; then
+if [ ! -f /usr/bin/switch_php.sh ]; then
         echo "
 #!/bin/bash
 
@@ -212,7 +213,6 @@ sudo service apache2 restart 1> /dev/null 2>&1
         chmod 755 /usr/bin/switch_php.sh
         ln -s /usr/bin/switch_php.sh /usr/bin/switch_php
     fi
-done
 
 apt-get install php-xdebug 2>> $LOG_FILE
 
