@@ -86,22 +86,30 @@ debconf-set-selections <<< "phpmyadmin phpmyadmin/app-password-confirm password 
 debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/admin-pass password $DBPASSWD"
 debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/app-pass password $DBPASSWD"
 debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect none"
-apt-get -y install mysql-server phpmyadmin 2>> $LOG_FILE
+apt-get -y install \
+	mysql-server \
+	automysqlbackup \
+	phpmyadmin 2>> $LOG_FILE
 
 mysql -uroot -p$DBPASSWD -e "CREATE DATABASE $DBNAME" 2>> $LOG_FILE
 mysql -uroot -p$DBPASSWD -e "grant all privileges on $DBNAME.* to '$DBUSER'@'%' identified by '$DBPASSWD'" 2>> $LOG_FILE
 
+if [ ! -d /vagrant/backup/db ]; then
+	mdkir -p /vagrant/backup/db
+fi
+
 sed -i "s/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
+sed -i "s/BACKUPDIR\s*=.*/BACKUPDIR=\"/vagrant/backup/db/" /etc/default/automysqlbackup
 
 apt-get -y install php \
-    apache2 \
-    libapache2-mod-php \
-    php-curl \
-    php-gd \
-    php-mysql \
-    php-mongodb \
-    php-xml \
-    php-gettext 2>> $LOG_FILE
+	apache2 \
+	libapache2-mod-php \
+	php-curl \
+	php-gd \
+	php-mysql \
+	php-mongodb \
+	php-xml \
+	php-gettext 2>> $LOG_FILE
 
 a2enmod rewrite 2>> $LOG_FILE
 
@@ -119,38 +127,38 @@ echo -e "\nInstall Php ..."
 write_log "PHP" "Configure Stuffs" "Xdebug, phpini, PHPCS ..."
 
 for PHP_VERSION in "${PHP_VERSION_LIST[@]}"; do
-    if [  $(dpkg-query -W -f='${Status}' php${PHP_VERSION} 2>> /dev/null | grep -c "ok installed") -eq 0 ]; then
-        write_log 'INSTALLING PHP ' ${PHP_VERSION}
-    	apt-get -y install php${PHP_VERSION} 2>> $LOG_FILE
+	if [  $(dpkg-query -W -f='${Status}' php${PHP_VERSION} 2>> /dev/null | grep -c "ok installed") -eq 0 ]; then
+		write_log 'INSTALLING PHP ' ${PHP_VERSION}
+		apt-get -y install php${PHP_VERSION} 2>> $LOG_FILE
 
-        apt-get -y install php${PHP_VERSION}-xml \
-            php${PHP_VERSION}-bz2 \
-            php${PHP_VERSION}-curl \
-            php${PHP_VERSION}-gd \
-            php${PHP_VERSION}-json \
-            php${PHP_VERSION}-mbstring \
-            php${PHP_VERSION}-mysql \
-            php${PHP_VERSION}-mysqli \
-            php${PHP_VERSION}-mysqlnd \
-            php${PHP_VERSION}-zip \
-            php${PHP_VERSION}-opcache \
-            php${PHP_VERSION}-pdo \
-            php${PHP_VERSION}-pdo-mysql \
-            php${PHP_VERSION}-readline \
-            php${PHP_VERSION}-dev \
-            php${PHP_VERSION}-fpm 2>> $LOG_FILE
-    fi
+		apt-get -y install php${PHP_VERSION}-xml \
+			php${PHP_VERSION}-bz2 \
+			php${PHP_VERSION}-curl \
+			php${PHP_VERSION}-gd \
+			php${PHP_VERSION}-json \
+			php${PHP_VERSION}-mbstring \
+			php${PHP_VERSION}-mysql \
+			php${PHP_VERSION}-mysqli \
+			php${PHP_VERSION}-mysqlnd \
+			php${PHP_VERSION}-zip \
+			php${PHP_VERSION}-opcache \
+			php${PHP_VERSION}-pdo \
+			php${PHP_VERSION}-pdo-mysql \
+			php${PHP_VERSION}-readline \
+			php${PHP_VERSION}-dev \
+			php${PHP_VERSION}-fpm 2>> $LOG_FILE
+	fi
 
-    if [ -f /etc/php/${PHP_VERSION}/apache2/php.ini ]; then
-        sed -i -r "s/;?upload_max_filesize\s*=.*/upload_max_filesize = 100M/g" /etc/php/${PHP_VERSION}/apache2/php.ini
-        sed -i -r "s/;?post_max_size\s*=.*/post_max_size = 100M/g" /etc/php/${PHP_VERSION}/apache2/php.ini
-        sed -i -r "s/;?error_reporting\s*=\s.*/error_reporting = E_ALL/" /etc/php/${PHP_VERSION}/apache2/php.ini
-        sed -i -r "s/;?display_errors\s*=\s.*/display_errors = On/" /etc/php/${PHP_VERSION}/apache2/php.ini
-        sed -i -r "s/;?log_errors\s*=.*/log_errors = On/" /etc/php/${PHP_VERSION}/apache2/php.ini
-        sed -i -r "s/;?error_log\s*=.*/error_log = \/var\/log\/php\/error.log/" /etc/php/${PHP_VERSION}/apache2/php.ini
+	if [ -f /etc/php/${PHP_VERSION}/apache2/php.ini ]; then
+		sed -i -r "s/;?upload_max_filesize\s*=.*/upload_max_filesize = 100M/g" /etc/php/${PHP_VERSION}/apache2/php.ini
+		sed -i -r "s/;?post_max_size\s*=.*/post_max_size = 100M/g" /etc/php/${PHP_VERSION}/apache2/php.ini
+		sed -i -r "s/;?error_reporting\s*=\s.*/error_reporting = E_ALL/" /etc/php/${PHP_VERSION}/apache2/php.ini
+		sed -i -r "s/;?display_errors\s*=\s.*/display_errors = On/" /etc/php/${PHP_VERSION}/apache2/php.ini
+		sed -i -r "s/;?log_errors\s*=.*/log_errors = On/" /etc/php/${PHP_VERSION}/apache2/php.ini
+		sed -i -r "s/;?error_log\s*=.*/error_log = \/var\/log\/php\/error.log/" /etc/php/${PHP_VERSION}/apache2/php.ini
 
-        if ! grep -Fxq '[XDebug]' /etc/php/${PHP_VERSION}/apache2/php.ini; then
-        echo '
+		if ! grep -Fxq '[XDebug]' /etc/php/${PHP_VERSION}/apache2/php.ini; then
+		echo '
 [XDebug]
 zend_extension="xdebug.so"
 xdebug.remote_enable=1
@@ -164,9 +172,9 @@ xdebug.remote_host='${REMOTE_HOST}'
 xdebug.remote_autostart=0
 xdebug.remote_log=/vagrant/xdebug.log
 xdebug.max_nesting_level=100
-        ' >> /etc/php/${PHP_VERSION}/apache2/php.ini
-        fi
-    fi
+		' >> /etc/php/${PHP_VERSION}/apache2/php.ini
+		fi
+	fi
 done
 
 apt-get install php-xdebug 2>> $LOG_FILE
@@ -187,8 +195,8 @@ write_log "APTGET" "Install Node ..."
 curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh
 
 if [ -f nodesource_setup.sh ]; then
-    sh nodesource_setup.sh 2>> $LOG_FILE
-    apt-get -y install nodejs 2>> $LOG_FILE
+	sh nodesource_setup.sh 2>> $LOG_FILE
+	apt-get -y install nodejs 2>> $LOG_FILE
 fi
 
 #
@@ -211,28 +219,28 @@ write_log "COMPOSER" "Install ..."
 
 if [ ! -f /usr/bin/composer ]; then
 
-    if [  $(dpkg-query -W -f='${Status}' composer 2>> /dev/null | grep -c "ok installed") -eq 0 ]; then
-    	EXPECTED_SIGNATURE=$(wget -q -O - https://composer.github.io/installer.sig)
-    	php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" 2>> $LOG_FILE
-    	ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', 'composer-setup.php');")
+	if [  $(dpkg-query -W -f='${Status}' composer 2>> /dev/null | grep -c "ok installed") -eq 0 ]; then
+		EXPECTED_SIGNATURE=$(wget -q -O - https://composer.github.io/installer.sig)
+		php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" 2>> $LOG_FILE
+		ACTUAL_SIGNATURE=$(php -r "echo hash_file('SHA384', 'composer-setup.php');")
 
-    	if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]; then
-            write_log 'Error' 'Invalid installer signature'
-        	rm composer-setup.php
-     	  	exit 1
-    	fi
-    fi
+		if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]; then
+			write_log 'Error' 'Invalid installer signature'
+			rm composer-setup.php
+			exit 1
+		fi
+	fi
 
-    php composer-setup.php --quiet 2>> $LOG_FILE
-    rm composer-setup.php
+	php composer-setup.php --quiet 2>> $LOG_FILE
+	rm composer-setup.php
 
-    if [ ! composer.phar ]; then
-        write_log "Composer Phar" "File Not found"
-    else
-        mv composer.phar /usr/bin/composer.phar
-        ln -s /usr/bin/composer.phar /usr/bin/composer
-        chmod 755 /usr/bin/composer.phar
-    fi
+	if [ ! composer.phar ]; then
+		write_log "Composer Phar" "File Not found"
+	else
+		mv composer.phar /usr/bin/composer.phar
+		ln -s /usr/bin/composer.phar /usr/bin/composer
+		chmod 755 /usr/bin/composer.phar
+	fi
 
 fi
 
@@ -263,11 +271,11 @@ write_log 'WP' 'Install CLI ...'
 curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar 1> /dev/null 2>> $LOG_FILE
 
 if [ -f wp-cli.phar ]; then
-    php wp-cli.phar --info 2>> $LOG_FILE
-    chmod +x wp-cli.phar 2>> $LOG_FILE
-    sudo mv wp-cli.phar /usr/bin/wp 2>> $LOG_FILE
+	php wp-cli.phar --info 2>> $LOG_FILE
+	chmod +x wp-cli.phar 2>> $LOG_FILE
+	sudo mv wp-cli.phar /usr/bin/wp 2>> $LOG_FILE
 else
-    write_log 'WPCLI' 'No way to locate the file wp-cli.phar'
+	write_log 'WPCLI' 'No way to locate the file wp-cli.phar'
 fi
 
 #
