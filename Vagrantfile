@@ -32,6 +32,12 @@ Vagrant.configure("2") do |config|
       s.path = "inc/bootstrap.sh"
   end
 
+  # Install PHP Switching
+  config.vm.provision "shell" do |s|
+      s.name = 'WordPress SushiCode'
+      s.path = "inc/phpswitching.sh"
+  end
+
   # The hostname the machine should have. Defaults to nil. If nil, Vagrant will not manage the hostname.
   # If set to a string, the hostname will be set on boot.
   config.vm.hostname = 'wordpress.sushicode'
