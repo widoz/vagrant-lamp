@@ -187,6 +187,16 @@ pear channel-update pear.php.net 2>> $LOG_FILE
 pear install PHP_CodeSniffer
 
 #
+# PHP UNIT
+#
+wget -O phpunit https://phar.phpunit.de/phpunit-6.phar 2>> $LOG_FILE
+
+if [ -f phpunit ]; then
+	chmod +x phpunit
+	mv phpunit /usr/bin/phpunit
+fi
+
+#
 # Node
 #
 echo -e "\nInstall Node"
