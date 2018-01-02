@@ -109,6 +109,7 @@ apt-get -y install php \
 	php-mysql \
 	php-mongodb \
 	php-xml \
+	php-zip \
 	php-gettext 2>> $LOG_FILE
 
 a2enmod rewrite 2>> $LOG_FILE
