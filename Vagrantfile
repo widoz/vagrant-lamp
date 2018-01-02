@@ -34,7 +34,7 @@ Vagrant.configure("2") do |config|
 
   # Install PHP Switching
   config.vm.provision "shell" do |s|
-      s.name = 'WordPress SushiCode'
+      s.name = 'PHP Switching'
       s.path = "inc/phpswitching.sh"
   end
 
