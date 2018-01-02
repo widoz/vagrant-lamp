@@ -53,5 +53,7 @@ Vagrant.configure("2") do |config|
 
   # Set appropriate permissions to the site directories and files.
   # apache2 need user: www-data and owner: www-data
-  config.vm.synced_folder ".", "/vagrant", owner: "www-data", group: "www-data"
+  config.vm.synced_folder ".", "/vagrant", owner: "www-data", group: "www-data", dmode: 755, fmode: 666
+
+  config.vm.synced_folder "~/Me/Development/", "/srv/development",  owner: "www-data", group: "www-data", dmode: 755, fmode: 666
 end
