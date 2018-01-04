@@ -110,6 +110,7 @@ apt-get -y install php \
 	php-mongodb \
 	php-xml \
 	php-zip \
+	php-bz2 \
 	php-gettext 2>> $LOG_FILE
 
 a2enmod rewrite 2>> $LOG_FILE
