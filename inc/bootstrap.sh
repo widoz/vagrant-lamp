@@ -157,7 +157,12 @@ for PHP_VERSION in "${PHP_VERSION_LIST[@]}"; do
 		sed -i -r "s/;?error_reporting\s*=\s.*/error_reporting = E_ALL/" /etc/php/${PHP_VERSION}/apache2/php.ini
 		sed -i -r "s/;?display_errors\s*=\s.*/display_errors = On/" /etc/php/${PHP_VERSION}/apache2/php.ini
 		sed -i -r "s/;?log_errors\s*=.*/log_errors = On/" /etc/php/${PHP_VERSION}/apache2/php.ini
-		sed -i -r "s/;?error_log\s*=.*/error_log = \/var\/log\/php\/error.log/" /etc/php/${PHP_VERSION}/apache2/php.ini
+		sed -i -r "s/;?error_log\s*=.*/error_log = \/var\/log\/php-error-${PHP_VERSION}.log/" /etc/php/${PHP_VERSION}/apache2/php.ini
+
+		# Set log file perms.
+		touch /var/log/php-error-${PHP_VERSION}.log
+		chown www-data:www-data /var/log/php-error-${PHP_VERSION}.log
+		chmod 666 /var/log/php-error-${PHP_VERSION}.log
 
 		if ! grep -Fxq '[XDebug]' /etc/php/${PHP_VERSION}/apache2/php.ini; then
 		echo '
