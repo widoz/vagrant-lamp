@@ -38,6 +38,11 @@ Vagrant.configure("2") do |config|
       s.path = "inc/phpswitching.sh"
   end
 
+  # Memory
+  config.vm.provider "virtualbox" do |v|
+    v.customize ["modifyvm", :id, "--memory", 2048]
+  end
+
   # The hostname the machine should have. Defaults to nil. If nil, Vagrant will not manage the hostname.
   # If set to a string, the hostname will be set on boot.
   config.vm.hostname = 'wordpress.sushicode'
@@ -53,7 +58,7 @@ Vagrant.configure("2") do |config|
 
   # Set appropriate permissions to the site directories and files.
   # apache2 need user: www-data and owner: www-data
-  config.vm.synced_folder ".", "/vagrant", owner: "www-data", group: "www-data", dmode: 755, fmode: 666
+  config.vm.synced_folder ".", "/vagrant", owner: "www-data", group: "www-data", ["dmode=775,fmode=666"]
 
   config.vm.synced_folder "~/Me/Development/", "/srv/development",  owner: "www-data", group: "www-data", mount_options: ["dmode=775,fmode=666"]
 end
