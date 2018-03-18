@@ -27,6 +27,11 @@ PHP_VERSION_LIST=(5.6 7.0 7.1 7.2)
 PHP_DEFAULT_VERSION=7.1
 
 #
+# Setup User
+#
+usergroup ubuntu www-data
+
+#
 # Apt Get Update
 #
 echo -e "\nUpdating packages list ...\n"
